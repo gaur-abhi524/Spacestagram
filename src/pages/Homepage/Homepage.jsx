@@ -8,11 +8,13 @@ import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Postcard from "../../components/postCard/Postcard";
 import Snackbar from "@mui/material/Snackbar";
+import CircularProgress from "@mui/material/CircularProgress";
+import Box from '@mui/material/Box';
 import "./Homepage.scss";
 
 function Homepage() {
   const [apiData, setApiData] = useState([]);
-  const [count, setCount] = useState(10);
+  const [count, setCount] = useState(5);
   const [lastElement, setLastElement] = useState(null);
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = useState(true);
@@ -24,7 +26,7 @@ function Homepage() {
     new IntersectionObserver((entries) => {
       const first = entries[0];
       if (first.isIntersecting) {
-        setCount((no) => no + 10);
+        setCount((no) => no + 5);
       }
     })
   );
@@ -40,9 +42,12 @@ function Homepage() {
         `https://api.nasa.gov/planetary/apod?count=${count}&api_key=${process.env.REACT_APP_NASA_API_KEY}`
       )
       .catch((err) => console.log(err));
-    console.log(result.data);
     let all = new Set([...apiData, ...result.data]);
     setApiData([...all]);
+    setApiData(prev => {
+       return prev.filter(item => item.media_type!=="video");
+    })
+    console.log(result);
     if (result.data.length > 0) {
       setLoading(false);
       setMoreLoading(false);
@@ -110,8 +115,10 @@ function Homepage() {
                 );
               })}
             </ImageList>
+            {moreLoading && (<Box sx={{ display: 'flex' ,width:'100%', justifyContent:'center'}}>
+      <CircularProgress />
+    </Box>)}
           </div>
-          {moreLoading && <p className="text-center">loading...</p>}
         </>
       )}
     </>
